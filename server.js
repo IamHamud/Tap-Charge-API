@@ -39,16 +39,16 @@ app.post('/create-charge', async (req, res) => {
             },
             source: { id: 'src_card' }, // Default to Visa/MasterCard; modify for specific sources
             redirect: {
-                url: `http://localhost:3000/checkout.html?name=${encodeURIComponent(description)}&price=${amount}&currency=${currency}`,
+                url: `${process.env.BASE_URL}/checkout.html?name=${encodeURIComponent(description)}&price=${amount}&currency=${currency}`,
             },
             post: {
-                url: 'http://localhost:3000/callback',
+                url: `${process.env.BASE_URL}/callback`,
             },
         };
 
         const response = await axios.post('https://api.tap.company/v2/charges', chargeData, {
             headers: {
-                Authorization: 'Bearer sk_test_Dfi4SjpRrcPhYE3nXv0bkKyl', // Ensure you are using the correct test API key
+                Authorization: `Bearer ${process.env.TAP_SECRET_KEY}`, // Use environment variable for API key
                 'Content-Type': 'application/json',
             },
         });
@@ -97,7 +97,7 @@ app.get('/charge-status', async (req, res) => {
     try {
         const response = await axios.get(`https://api.tap.company/v2/charges/${charge_id}`, {
             headers: {
-                Authorization: 'Bearer sk_test_Dfi4SjpRrcPhYE3nXv0bkKyl',
+                Authorization: `Bearer ${process.env.TAP_SECRET_KEY}`,
             },
         });
 
@@ -117,5 +117,5 @@ app.use((req, res) => {
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server is running at http://localhost:${PORT}`);
+    console.log(`Server is running at ${process.env.BASE_URL || `http://localhost:${PORT}`}`);
 });
