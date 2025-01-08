@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checkout</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .redirect-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .redirect-btn:hover {
+            background-color: #0056b3;
+        }
+
+        #transaction-status {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+
+        .json-output {
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: left;
+            max-width: 800px;
+            overflow-x: auto;
+        }
+
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <!-- Checkout Section -->
+    <h1>Transaction Status</h1>
+    <div id="transaction-status"></div>
+    <div id="error" class="error-message"></div>
+    <div id="json-output" class="json-output"></div>
+
+    <!-- Redirect Button -->
+    <button class="redirect-btn" onclick="redirectToMainPage()">Redirect to Main Page</button>
+
+    <script>
+        // Extract query parameters from the URL
+        const params = new URLSearchParams(window.location.search);
+        const tapId = params.get('tap_id'); // Assuming tap_id is returned in the URL
+
+        // Fetch transaction status from the server
+        async function fetchTransactionDetails() {
+            try {
+                if (!tapId) {
+                    document.getElementById('transaction-status').innerText = "Missing tap_id parameter.";
+                    console.error("Missing tap_id parameter.");
+                    return;
+                }
+
+                const response = await fetch(`/charge-status?charge_id=${tapId}`);
+                if (!response.ok) {
+                    throw new Error("Failed to fetch transaction status");
+                }
+                const data = await response.json();
+
+                if (data) {
+                    // Display basic status
+                    const statusText =
+                        data.status.toUpperCase() === "CAPTURED"
+                            ? `Transaction Successful! Amount: ${params.get('price')} ${params.get('currency')}`
+                            : `Transaction ${data.status.toUpperCase()}: Please try again.`;
+                    document.getElementById('transaction-status').innerText = statusText;
+
+                    // Display full JSON response
+                    document.getElementById('json-output').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    document.getElementById('transaction-status').innerText = "Unable to fetch transaction details.";
+                    console.error("Unable to fetch transaction details.");
+                }
+            } catch (error) {
+                console.error("Error fetching transaction details:", error);
+                document.getElementById('transaction-status').innerText = "Error fetching transaction details.";
+            }
+        }
+
+        // Call the function to fetch transaction details
+        fetchTransactionDetails();
+
+        // Redirect to the main page
+        function redirectToMainPage() {
+            window.location.href = "index.html";
+        }
+    </script>
+</body>
+</html>

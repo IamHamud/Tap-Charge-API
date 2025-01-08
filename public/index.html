@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checkout - Primark</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <!-- Banner Section -->
+    <header class="banner">
+        <div class="banner-wrapper">
+            <img src="Primark.png" alt="Primark Banner" class="banner-img" />
+        </div>
+    </header>
+
+    <!-- Products Section -->
+    <main class="products-section">
+        <h1>Our Products</h1>
+        <div class="products-wrapper">
+            <!-- Product 1: Elegant Summer Dress -->
+            <div class="product-card">
+                <img src="Dress.jpg" alt="Elegant Summer Dress" class="product-img" />
+                <h2 class="product-title">Elegant Summer Dress</h2>
+                <p class="product-price">$22.00</p>
+                <button id="purchase-dress" class="purchase-btn">Purchase Now</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Wait for the DOM to fully load before attaching event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            const purchaseButton = document.getElementById('purchase-dress');
+            
+            purchaseButton.addEventListener('click', async () => {
+                try {
+                    const response = await fetch('/create-charge', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            amount: 22, // Product price
+                            currency: 'USD', // Specify currency
+                            description: 'Elegant Summer Dress',
+                        }),
+                    });
+
+                    const data = await response.json();
+                    console.log('Charge created:', data);
+
+                    if (data.transaction && data.transaction.url) {
+                        // Redirect to the hosted checkout page
+                        window.location.href = data.transaction.url;
+                    } else {
+                        console.error('Transaction URL not found.');
+                    }
+                } catch (error) {
+                    console.error('Error creating charge:', error);
+                }
+            });
+        });
+
+    </script>
+    <!-- Disclaimer Section -->
+<footer class="disclaimer" style="background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px auto; max-width: 800px; text-align: center; font-family: Arial, sans-serif; font-size: 14px; color: #333;">
+    <p>
+        <strong>Disclaimer:</strong> This is a demo project created purely for learning and educational purposes.
+        The use of the Primark logo is solely to make the project visually engaging and does not represent any
+        affiliation with or endorsement by Primark or Tap Payments. The implementation shown here is not based on
+        actual documentation provided by Tap Payments but is designed to demonstrate a sample e-commerce payment
+        integration.
+    </p>
+</footer>
+
+</body>
+</html>
