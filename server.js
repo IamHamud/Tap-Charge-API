@@ -37,7 +37,7 @@ app.post('/create-charge', async (req, res) => {
                 email: 'john.doe@example.com',
                 phone: { country_code: '1', number: '1234567890' },
             },
-            source: { id: 'src_card' }, // Default to Visa/MasterCard; modify for specific sources
+            source: { id: 'src_all' }, // Default to Visa/MasterCard; modify for specific sources
             redirect: {
                 url: `${process.env.BASE_URL}/checkout.html?name=${encodeURIComponent(description)}&price=${amount}&currency=${currency}`,
             },
